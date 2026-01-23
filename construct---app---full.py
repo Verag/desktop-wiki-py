@@ -18,87 +18,96 @@ DB_NAME = "wiki.db"
 
 # ====================== Database Layer ======================
 
-def init_db():
-    """Initialize database and required tables."""
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS pages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT UNIQUE NOT NULL,
-                content TEXT NOT NULL
-            )
-        """)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                action TEXT NOT NULL,
-                page_title TEXT NOT NULL,
-                timestamp TEXT NOT NULL,
-                machine_name TEXT NOT NULL
-            )
-        """)
+class WikiDB:
+    def __init__(self, db_name=DB_NAME):
+        self.db_name = db_name
+        self.init_db()
 
+    def init_db(self):
+        try:
+            with sqlite3.connect(self.db_name) as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS pages (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        title TEXT UNIQUE NOT NULL,
+                        content TEXT NOT NULL
+                    )
+                """)
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS logs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        action TEXT NOT NULL,
+                        page_title TEXT NOT NULL,
+                        timestamp TEXT NOT NULL,
+                        machine_name TEXT NOT NULL
+                    )
+                """)
+        except sqlite3.Error as e:
+            messagebox.showerror("DB Initialization Error", f"Failed to initialize database: {e}")
+            raise  # Re-raise to stop the app if critical.
 
-def get_page(title: str):
-    """Fetch a page by title."""
-    if not title.strip():
-        return None
+    def get_page(self, title: str):
+        if not title.strip():
+            return None
+        try:
+            with sqlite3.connect(self.db_name) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT title, content FROM pages WHERE title = ?",
+                    (title.strip(),)
+                )
+                return cursor.fetchone()
+        except sqlite3.Error as e:
+            messagebox.showerror("DB Error", f"Failed to fetch page: {e}")
+            return None
 
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT title, content FROM pages WHERE title = ?",
-            (title.strip(),)
-        )
-        return cursor.fetchone()
+    def get_all_titles(self):
+        try:
+            with sqlite3.connect(self.db_name) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT title FROM pages ORDER BY title")
+                return [row[0] for row in cursor.fetchall()]
+        except sqlite3.Error as e:
+            messagebox.showerror("DB Error", f"Failed to fetch titles: {e}")
+            return []
 
+    def save_page(self, title: str, content: str):
+        title = title.strip()
+        content = content.strip()
+        if not title:
+            messagebox.showwarning("Error", "Page title cannot be empty.")
+            return False
+        try:
+            page_exists = self.get_page(title) is not None
+            action = "Update" if page_exists else "Create"
+            with sqlite3.connect(self.db_name) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT OR REPLACE INTO pages (title, content) VALUES (?, ?)",
+                    (title, content)
+                )
+            self.log_action(action, title)
+            return True
+        except sqlite3.Error as e:
+            messagebox.showerror("DB Error", f"Failed to save page: {e}")
+            return False
 
-def get_all_titles():
-    """Return all page titles ordered alphabetically."""
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT title FROM pages ORDER BY title")
-        return [row[0] for row in cursor.fetchall()]
-
-
-def save_page(title: str, content: str):
-    """Insert or update a page and log the action."""
-    title = title.strip()
-    content = content.strip()
-
-    if not title:
-        messagebox.showwarning("Error", "Page title cannot be empty.")
-        return False
-
-    page_exists = get_page(title) is not None
-    action = "Update" if page_exists else "Create"
-
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT OR REPLACE INTO pages (title, content) VALUES (?, ?)",
-            (title, content)
-        )
-
-    log_action(action, title)
-    return True
-
-
-def log_action(action: str, page_title: str):
-    """Register an action in the audit log."""
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    machine_name = platform.node()
-
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO logs (action, page_title, timestamp, machine_name)
-            VALUES (?, ?, ?, ?)
-            """,
-            (action, page_title, timestamp, machine_name)
-        )
+    def log_action(self, action: str, page_title: str):
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        machine_name = platform.node() or "Unknown"  # Handle empty node
+        try:
+            with sqlite3.connect(self.db_name) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO logs (action, page_title, timestamp, machine_name)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (action, page_title, timestamp, machine_name)
+                )
+        except sqlite3.Error as e:
+            print(f"Warning: Failed to log action: {e}")  # Log to console, não pare a app
 
 # ====================== HTML / Markdown Rendering ======================
 
