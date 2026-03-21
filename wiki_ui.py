@@ -4,6 +4,7 @@ import os
 import markdown
 
 from wiki_domain import WikiDB, WikiError, ValidationError
+from wiki_service import WikiService
 
 
 class WikiUI:
@@ -168,19 +169,16 @@ class WikiUI:
         self.preview.config(state=tk.DISABLED)
 
     def export_html(self):
-
         try:
-            html = self.db.export_all_pages_to_html(markdown.markdown)
-
-            filename = "wiki_export.html"
-
-            with open(filename, "w", encoding="utf-8") as f:
-                f.write(html)
-
-            messagebox.showinfo(
-                "Exported",
-                f"File saved to:\n{os.path.abspath(filename)}"
+            export_path = service.export_to_mkdocs(
+                output_dir="~/wiki_mkdocs_export",  # ou Path.home() / "wiki_mkdocs"
+                site_name="Wiki Pessoal 2026",
+                build_after_export=True
             )
-
-        except WikiError as e:
-            messagebox.showerror("Error", str(e))
+            site_path = export_path / "site"
+            messagebox.showinfo(
+                "MkDocs export concluded",
+                f"Site at:\n{site_path}\n\nOpen at browser:\n{site_path}/index.html"
+            )
+        except Exception as e:
+            messagebox.showerror("Error in export", str(e))  

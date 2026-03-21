@@ -4,7 +4,13 @@ import platform
 import os
 import logging
 from pathlib import Path
-from typing import Optional, List, Tuple
+import shutil
+import subprocess
+import tempfile
+import re
+from typing import Dict, Optional, List, Tuple
+from collections import defaultdict
+
 
 # Module-level logger setup (can be overridden by the application)
 logger = logging.getLogger(__name__)
@@ -225,8 +231,11 @@ class WikiDB:
             with self._conn:  # Atomic transaction
                 self._conn.execute(
                     """
-                    INSERT OR REPLACE INTO pages (title, content, updated_at)
+                    INSERT INTO pages (title, content, updated_at)
                     VALUES (?, ?, ?)
+                    ON CONFLICT(title) DO UPDATE SET
+                        content=excluded.content,
+                        updated_at=excluded.updated_at
                     """,
                     (title_clean, content_clean, now)
                 )

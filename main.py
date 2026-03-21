@@ -1,8 +1,12 @@
 from wiki_domain import WikiDB
 from wiki_ui import WikiUI
+from services.wiki_service import WikiService
 
-## entry point for the application
+
+# Entry point for the application
 if __name__ == "__main__":
-    db = WikiDB("wiki.db")  ## create database 
-    app = WikiUI(db)## create graphical interface with dependency injection
+    db = WikiDB("wiki.db")          # Create database
+    service = WikiService(db)       # Create service layer
+
+    app = WikiUI(service)           # Inject service (NOT db)
     app.run()
