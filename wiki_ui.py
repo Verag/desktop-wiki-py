@@ -4,6 +4,7 @@ import os
 import markdown
 
 from wiki_domain import WikiDB, WikiError, ValidationError
+from wiki_service import WikiService
 
 
 class WikiUI:
@@ -169,7 +170,7 @@ class WikiUI:
 
     def export_html(self):
         try:
-            export_path = self.db.export_to_mkdocs_site(
+            export_path = service.export_to_mkdocs(
                 output_dir="~/wiki_mkdocs_export",  # ou Path.home() / "wiki_mkdocs"
                 site_name="Wiki Pessoal 2026",
                 build_after_export=True
