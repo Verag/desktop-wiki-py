@@ -4,13 +4,13 @@ import os
 import markdown
 
 from wiki_domain import WikiDB, WikiError, ValidationError
-from wiki_service import WikiService
+from services.wiki_service import WikiService
 
 
 class WikiUI:
 
-    def __init__(self, db: WikiDB):
-        self.db = db
+    def __init__(self, service: WikiService):
+        self.service  = service
 
         self.root = tk.Tk()
         self.root.title("Desktop Wiki")
@@ -90,7 +90,7 @@ class WikiUI:
     def refresh_index(self):
 
         try:
-            titles = self.db.get_all_titles()
+            titles = self.service.get_all_titles()
 
             self.page_list.delete(0, tk.END)
 
@@ -105,7 +105,7 @@ class WikiUI:
         query = self.search_entry.get().lower()
 
         try:
-            titles = self.db.get_all_titles()
+            titles = self.service.get_all_titles()
 
             self.page_list.delete(0, tk.END)
 
@@ -126,7 +126,7 @@ class WikiUI:
 
             title = self.page_list.get(selection[0])
 
-            page = self.db.get_page(title)
+            page = self.service.get_page(title)
 
             if page:
                 self.title_entry.delete(0, tk.END)
@@ -146,7 +146,7 @@ class WikiUI:
             title = self.title_entry.get().strip()
             content = self.editor.get("1.0", tk.END)
 
-            self.db.save_page(title, content)
+            self.service.save_page(title, content)
 
             messagebox.showinfo("Saved", "Page saved successfully")
 
@@ -170,15 +170,7 @@ class WikiUI:
 
     def export_html(self):
         try:
-            export_path = service.export_to_mkdocs(
-                output_dir="~/wiki_mkdocs_export",  # ou Path.home() / "wiki_mkdocs"
-                site_name="Wiki Pessoal 2026",
-                build_after_export=True
-            )
-            site_path = export_path / "site"
-            messagebox.showinfo(
-                "MkDocs export concluded",
-                f"Site at:\n{site_path}\n\nOpen at browser:\n{site_path}/index.html"
-            )
+            export_path = self.service.export_to_mkdocs()
+
         except Exception as e:
             messagebox.showerror("Error in export", str(e))  
