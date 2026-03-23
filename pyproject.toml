@@ -1,20 +1,21 @@
-
-# Located in the root of your project (same folder as main.py)
-
 [build-system]
-requires = ["hatchling >= 1.22.0"]
+requires = ["hatchling>=1.22.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "desktop-wiki"
 version = "0.1.0"
 description = "A lightweight, local-first desktop personal wiki application built with Python and Tkinter, featuring Markdown editing, live preview, page indexing, and MkDocs export."
+
 readme = { file = "README.md", content-type = "text/markdown" }
+
 authors = [
     { name = "Vera", email = "vera.maria.dg@gmail.com" },
 ]
-license = { text = "MIT" }  
-requires-python = ">=3.9"  
+
+license = { text = "MIT" }
+requires-python = ">=3.9"
+
 keywords = [
     "wiki",
     "personal-knowledge-management",
@@ -24,6 +25,7 @@ keywords = [
     "desktop-app",
     "mkdocs",
 ]
+
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: X11 Applications",
@@ -40,43 +42,42 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Office/Business :: News/Diary",
-    "Topic :: Text Editors :: Integrated Development Environments (IDE)",
+    "Topic :: Text Editors",
+    "Topic :: Text Processing",
     "Topic :: Text Processing :: Markup :: Markdown",
+
 ]
 
-[project.dependencies]
-markdown = ">=3.5"
-# tkinter is part of stdlib, no need to list it
-# pathlib is also stdlib
-# If you use customtkinter or other optional GUI libs later, add them here
+dependencies = [
+    "markdown>=3.5",
+]
 
-# Optional / development dependencies (not installed by default)
 [project.optional-dependencies]
 dev = [
-    "black >= 24.0",
-    "ruff >= 0.5.0",
-    "mypy >= 1.11",
-    "pytest >= 8.0",
-    "mkdocs >= 1.6.0",
-    "mkdocs-material >= 9.5.0",
+    "black",
+    "flake8",
 ]
+
 docs = [
-    "mkdocs-material >= 9.5.0",
+    "mkdocs",
+    "mkdocs-material",
+    "pymdown-extensions",
 ]
 
 [project.urls]
-
+Homepage = "https://github.com/Verag/app---wiki---folder"
 
 [project.scripts]
-desktop-wiki = "main:run_app"  # optional: allows running via `desktop-wiki` command after install
-# If you have if __name__ == "__main__": in main.py, you can point to main.py:main or similar
+desktop-wiki = "desktop_wiki.main:run_app"
 
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/desktop_wiki"]
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
 
 [tool.ruff]
 line-length = 88
 target-version = "py39"
-
-[tool.black]
-line-length = 88
-target-version = ['py39']

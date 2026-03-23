@@ -1,6 +1,6 @@
-from wiki_domain import WikiDB
-from wiki_ui import WikiUI
-from services.wiki_service import WikiService
+from desktop_wiki.core.wiki_domain import WikiDB
+from desktop_wiki.ui.wiki_ui import WikiUI
+from desktop_wiki.services.wiki_service import WikiService
 import tkinter as tk
 from tkinter import messagebox
 

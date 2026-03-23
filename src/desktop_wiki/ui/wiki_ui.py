@@ -3,8 +3,8 @@ from tkinter import messagebox, scrolledtext
 import os
 import markdown
 
-from wiki_domain import WikiDB, WikiError, ValidationError
-from services.wiki_service import WikiService
+from desktop_wiki.core.wiki_domain import WikiDB, WikiError, ValidationError
+from desktop_wiki.services.wiki_service import WikiService
 
 
 class WikiUI:

@@ -8,7 +8,7 @@
 5. The result is returned """
 
 
-import exporters.mkdocs
+import desktop_wiki.exporters.mkdocs
 
 
 class WikiService:
