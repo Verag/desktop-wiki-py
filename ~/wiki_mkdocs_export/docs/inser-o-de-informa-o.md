@@ -1,1 +1,0 @@
-O processo de inserção de informação inicia-se com o **click** no botão **New**. Depois insere-se o novo título para a página e o contéudo da página respetiva.

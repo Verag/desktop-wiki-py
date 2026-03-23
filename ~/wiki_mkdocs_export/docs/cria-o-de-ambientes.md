@@ -1,1 +1,0 @@
-1. Garantir a reproducibilidade do código;
