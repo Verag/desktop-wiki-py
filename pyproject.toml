@@ -5,26 +5,14 @@ build-backend = "hatchling.build"
 [project]
 name = "desktop-wiki"
 version = "0.1.0"
-description = "A lightweight, local-first desktop personal wiki application built with Python and Tkinter, featuring Markdown editing, live preview, page indexing, and MkDocs export."
-
+description = "A lightweight, local-first desktop personal wiki application built with Python and Tkinter."
 readme = { file = "README.md", content-type = "text/markdown" }
-
 authors = [
-    { name = "Vera", email = "vera.maria.dg@gmail.com" },
+    { name = "Vera Gonçalves", email = "vera.maria.dg@gmail.com" },
 ]
-
 license = { text = "MIT" }
-requires-python = ">=3.9"
-
-keywords = [
-    "wiki",
-    "personal-knowledge-management",
-    "tkinter",
-    "markdown",
-    "offline",
-    "desktop-app",
-    "mkdocs",
-]
+requires-python = ">=3.10"
+keywords = ["wiki", "pkm", "tkinter", "markdown", "offline", "desktop-app", "mkdocs"]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -37,47 +25,48 @@ classifiers = [
     "Natural Language :: Portuguese",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Office/Business :: News/Diary",
     "Topic :: Text Editors",
-    "Topic :: Text Processing",
     "Topic :: Text Processing :: Markup :: Markdown",
-
 ]
 
 dependencies = [
     "markdown>=3.5",
+    "loguru>=0.7.0",
+    "rich>=13.0.0",
+    "pydantic-settings>=2.0.0",
+    "injector>=0.21.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "flake8",
+    "black>=24.0.0",
+    "ruff>=0.4.0",
+    "pytest>=8.0.0",
 ]
-
 docs = [
-    "mkdocs",
-    "mkdocs-material",
-    "pymdown-extensions",
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+    "pymdown-extensions>=10.0.0",
 ]
 
 [project.urls]
-Homepage = "https://github.com/Verag/app---wiki---folder"
+Homepage = "https://github.com/Verag/desktop-wiki-py"
+Repository = "https://github.com/Verag/desktop-wiki-py"
 
 [project.scripts]
-desktop-wiki = "desktop_wiki.main:run_app"
-
+desktop-wiki = "desktop_wiki.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/desktop_wiki"]
 
 [tool.black]
 line-length = 88
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py310"
