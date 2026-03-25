@@ -82,7 +82,7 @@ Database Layer (SQLite)
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/desktop-wiki.git
+git clone https://github.com/Verag/desktop-wiki-py.git
 cd desktop-wiki
 ```
 
