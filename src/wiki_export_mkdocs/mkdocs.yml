@@ -1,0 +1,10 @@
+site_name: "My personal wiki"
+
+theme:
+  name: material
+
+nav:
+    - Funcionamento: funcionamento.md
+    - Instala O Da Aplica O: instala-o-da-aplica-o.md
+    - Introdu O: introdu-o.md
+    - Testes: testes.md

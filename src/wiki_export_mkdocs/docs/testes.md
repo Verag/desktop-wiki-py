@@ -1,0 +1,1 @@
+Definir ops tipos de testes a aplicar

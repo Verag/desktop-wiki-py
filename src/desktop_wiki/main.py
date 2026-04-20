@@ -7,20 +7,20 @@ from tkinter import messagebox
 
 try:
     db = WikiDB()                     
-    service = WikiService(db)         # ← cria o service aqui!
+    service = WikiService(db)         #create service here!
     
-    app = WikiUI(service)             # agora service existe
+    app = WikiUI(service)             # now, service exists!
     app.run()
 
 except NameError as e:
-    # Mostra pop-up se 'service' ou outra variável não estiver definida
+    # Show pop-up if 'service' or another variable is not defined
     root = tk.Tk()
-    root.withdraw()                   # esconde a janela principal vazia
+    root.withdraw()                   # hide empty principal windows
     messagebox.showerror(
-        title="Erro ao iniciar a aplicação",
-        message=f"Erro de configuração: {str(e)}\n\n"
-                "Provável causa: a variável 'service' ou 'db' não foi criada antes de iniciar a UI.\n"
-                "Verifica o main.py e certifica-te que tens:\n"
+        title="Error starting application",
+        message=f"Configuration error: {str(e)}\n\n"
+                "Likely cause: the variable 'service' or 'db' was not created before starting the UI.\n"
+                "Check main.py and ensure you have:\n"
                 "db = WikiDB()\n"
                 "service = WikiService(db)\n"
                 "app = WikiUI(service)"
@@ -28,8 +28,8 @@ except NameError as e:
     root.destroy()
 
 except Exception as e:
-    # Captura outros erros inesperados
+    # capture others unexpected errors and show a pop-up
     root = tk.Tk()
     root.withdraw()
-    messagebox.showerror("Erro inesperado", f"Ocorreu um erro:\n{str(e)}")
+    messagebox.showerror("Error", f"An unexpected error occurred:\n{str(e)}")
     root.destroy()

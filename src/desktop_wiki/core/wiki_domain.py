@@ -22,32 +22,23 @@ if not logger.handlers:
 
 
 class WikiError(Exception):
-    """Base exception for all wiki-specific errors"""
+    """Base exception for all wiki-specific errors."""
     pass
-
 
 class ValidationError(WikiError):
-    """Raised when input validation fails (title or content)"""
+    """Raised when input validation fails (e.g., invalid title or content)."""
     pass
-
 
 class DatabaseError(WikiError):
-    """Raised when a database operation fails (IO, schema, etc.)"""
+    """
+    Raised when a database operation fails 
+    (connection issues, query errors, schema problems, IO errors, etc.).
+    """
     pass
-
 
 class WikiDB:
     """
     Persistence layer for a personal desktop Wiki application.
-
-    Key improvements in this refactored version:
-    - Single long-lived SQLite connection (better performance)
-    - WAL mode enabled (recommended for desktop single-user scenarios)
-    - Backup only on demand (not on every save – avoids unnecessary I/O)
-    - Realistic validation rules for personal use
-    - More informative logging (INFO for normal operations)
-    - Context manager support (with WikiDB(...) as db: ...)
-    - Explicit close() method
     """
 
     # Adjustable constants
@@ -190,7 +181,7 @@ class WikiDB:
 
         try:
             cursor = self._conn.execute(
-                "SELECT title, content FROM pages WHERE title = ? COLLATE NOCASE",
+                "SELECT title, content FROM pages WHERE title = ? COLLATE NOCASE", # compare text ignoring lower or upper cases
                 (title,)
             )
             row = cursor.fetchone()
@@ -201,14 +192,22 @@ class WikiDB:
             raise DatabaseError("Error fetching page") from e
 
     def get_all_titles(self) -> List[str]:
-        """Return sorted list of all page titles"""
+        """
+        Return a sorted list of all page titles in the wiki (case-insensitive).
+        """
         try:
             cursor = self._conn.execute(
                 "SELECT title FROM pages ORDER BY title COLLATE NOCASE"
             )
-            return [row["title"] for row in cursor.fetchall()]
+            try:
+                return [row["title"] for row in cursor.fetchall()]
+            finally:
+                cursor.close()          # garante que o cursor é sempre fechado
+
         except sqlite3.Error as e:
-            raise DatabaseError("Error listing titles") from e
+            raise DatabaseError(f"Failed to retrieve page titles from database: {e}") from e
+
+
 
     def save_page(self, title: str, content: str, *, backup_before: bool = False) -> bool:
         """

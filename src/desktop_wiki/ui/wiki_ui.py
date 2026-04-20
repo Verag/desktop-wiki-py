@@ -170,7 +170,11 @@ class WikiUI:
 
     def export_html(self):
         try:
-            export_path = self.service.export_to_mkdocs()
+            export_path = self.service.export_to_mkdocs(
+                output_dir="wiki_export_mkdocs",
+                site_name="My personal wiki",
+                build_after_export=False
+            )
 
         except Exception as e:
             messagebox.showerror("Error in export", str(e))  

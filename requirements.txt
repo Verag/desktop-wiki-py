@@ -1,1 +1,15 @@
+annotated-types==0.7.0
+-e git+https://github.com/Verag/desktop-wiki-py.git@43a7d5531e863c1c56c656aab8749f1ea0caf9b3#egg=desktop_wiki
+injector==0.24.0
+loguru==0.7.3
 Markdown==3.10.2
+markdown-it-py==4.0.0
+mdurl==0.1.2
+pydantic==2.13.2
+pydantic-settings==2.13.1
+pydantic_core==2.46.2
+Pygments==2.20.0
+python-dotenv==1.2.2
+rich==15.0.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0

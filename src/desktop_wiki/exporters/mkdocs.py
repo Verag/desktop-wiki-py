@@ -8,10 +8,9 @@ from pathlib import Path
 from typing import Dict, Optional, List
 from collections import defaultdict
 import logging
+from .base import Exporter # relative import of Exporter base class
 
-from exporters.base import Exporter
-
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) #Creates a logger with the name of the current module.
 
 
 class MkDocsExporter(Exporter):

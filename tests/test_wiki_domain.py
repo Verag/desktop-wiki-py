@@ -2,7 +2,9 @@ import unittest
 import sqlite3
 import os
 from unittest.mock import patch
-from wiki_domain import WikiDB, ValidationError, DatabaseError  
+
+from desktop_wiki.core import wiki_domain
+from src.desktop_wiki.core.wiki_domain import WikiDB, ValidationError, DatabaseError  
 
 class TestWikiDB(unittest.TestCase):
     """Unit tests for WikiDB domain class"""
