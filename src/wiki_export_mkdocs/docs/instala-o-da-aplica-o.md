@@ -1,1 +1,0 @@
-é uma aplicação para instalar no *desktop*.
