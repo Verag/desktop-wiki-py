@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Desktop Wiki
+GenericName=Personal Wiki
+Comment=Personal offline wiki application built with Python and Tkinter
+Exec=PATH_TO_YOUR_PROJECT/venv/bin/python -m desktop_wiki.main
+Type=Application
+Icon=accessories-text-editor
+Terminal=false
+Categories=Office;Utility;NoteTaking;
+Keywords=wiki;notes;markdown;personal wiki;
+StartupNotify=true

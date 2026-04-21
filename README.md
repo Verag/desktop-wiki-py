@@ -1,132 +1,97 @@
 # Desktop Wiki
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Lint: flake8](https://img.shields.io/badge/lint-flake8-blue.svg)](https://flake8.pycqa.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A local-first personal knowledge management system (PKM) designed for speed, privacy, and structured thinking.
+**A lightweight, fast and completely offline personal wiki.**
 
-This project demonstrates how to build a maintainable desktop application using a clean layered architecture, combining persistence, business logic, and export capabilities.
+Desktop Wiki is a simple, private, and user-friendly desktop application to organize your thoughts, study notes, personal documentation, and knowledge — your own "second brain" that stays 100% on your computer.
+
+No cloud. No tracking. Just your notes, your way.
 
 ---
 
 ## Features
 
 - Create and edit wiki-style pages
-- Store content locally using SQLite
-- Write content using Markdown
-- Live preview with basic Markdown rendering
-- Page index for quick navigation
-- Action logging (create/update events with timestamps and machine name)
-- Export pages to:
-  - Single HTML file
-  - Static MkDocs site with hierarchical navigation
-- Offline-first and local-only by design
+- Full Markdown support with live preview
+- Local storage using SQLite (everything stays on your machine)
+- Clean and intuitive Tkinter interface
+- Quick page index with search functionality
+- Action logging (see what was changed and when)
+- Powerful export options:
+  - Complete static MkDocs website with hierarchical navigation
+  - Single HTML file export (coming soon)
 
 ---
 
-## Architecture
+## Quick Start
 
-The project follows a layered architecture:
-UI (Tkinter)
-↓
-Service Layer (business logic)
-↓
-Export Layer (MkDocs, HTML)
-↓
-Database Layer (SQLite)
-
----
-
-### Key design principles:
-
-- Separation of concerns
-- Low coupling between layers
-- Extensibility (new exporters can be added easily)
-- Maintainability (clear responsibility per module)
-
----
-
-## Use Cases
-
-- Personal knowledge base ("second brain")
-- Technical documentation
-- Study notes and structured learning
-- Offline documentation system
-- Lightweight alternative to tools like Notion or Obsidian (local-only)
-
----
-
-## Tech Stack
-
-- Python
-- Tkinter for the desktop UI
-- SQLite for local storage
-- Markdown (optional dependency) for content rendering
-- MkDocs for static site export
-
----
-
-## Preview
-
-<!-- Add screenshots or GIFs here -->
-<!-- Example:
-![App Screenshot](docs/screenshot.png)
--->
-
----
-
-## Installation
-
-Clone the repository:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Verag/desktop-wiki-py.git
-cd desktop-wiki
+cd desktop-wiki-py
 ```
 
----
+### 2. Create virtual environment and install
+```bash
+python3 -m venv venv
+source venv/bin/activate        # Linux / macOS
+# venv\Scripts\activate         # Windows
 
- ## Run
-python3 main.py
+pip install -e .
+```
 
----
+### 3. Run the application manuallly
+```bash
+python -m desktop_wiki.main
+```
+
+## Create Desktop Shortcut (Linux)
+### 1. Copy the example shortcut:
+```bash
+cp Desktop-Wiki.desktop.example ~/Desktop/Desktop-Wiki.desktop
+```
+
+### 2. Edit the file and update the path to match your project location.
+
+### 3. Make it executable:
+```bash
+chmod +x ~/Desktop/Desktop-Wiki.desktop
+```
+
+Now you can launch your wiki with a simple double-click!
+
+## For Developers
+If you want to contribute or modify the code:
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Format code
+black src/
+
+# Lint code
+ruff check src/
+```
 
 ## Requirements
 
- - Python 3.10+
- - Linux or macOS
-(Windows may work but is not officially tested)
+ - Python 3.10 or higher
+ - Best supported on Linux and macOS
+(Windows should work but is not officially tested yet)
 
----
+## About This Project
+Desktop Wiki was built with the goal of creating a clean, simple, and maintainable desktop application for personal knowledge management.
+It focuses on:
 
-## Export
+ - Clean layered architecture (UI → Service → Export → Database)
+ - Total privacy (local-first design)
+ - Code quality and extensibility
 
-- You can export your wiki into a static site:
-
- - Clean Markdown structure
- - Hierarchical navigation
- - Ready for hosting (GitHub Pages, Netlify, etc.)
-
----
-
-## Motivation
-
-This project was built to explore:
-
- - Clean architecture in Python desktop applications
- - Local-first software design
- - Structured knowledge systems
- - Separation between persistence, services, and export layers
-
-It is not just a note-taking app — it is an experiment in building maintainable and extensible software.
-
----
+It serves both as a practical daily tool and as a learning example of building well-structured Python desktop applications.
 
 ## License
-
 This project is licensed under the MIT License.
-
----
-
