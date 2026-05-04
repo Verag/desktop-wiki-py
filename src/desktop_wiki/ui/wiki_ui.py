@@ -1,180 +1,196 @@
-import tkinter as tk
-from tkinter import messagebox, scrolledtext
-import os
+from PySide6.QtWidgets import (
+    QApplication, QMainWindow, QWidget,
+    QVBoxLayout, QHBoxLayout,
+    QListWidget, QLineEdit, QTextEdit,
+    QPushButton, QLabel, QMessageBox
+)
+
+from PySide6.QtCore import Qt
 import markdown
 
-from desktop_wiki.core.wiki_domain import WikiDB, WikiError, ValidationError
-from desktop_wiki.services.wiki_service import WikiService
 
+class WikiUI(QMainWindow): # The WikiUI class inherits all attributes and methods from QMainWindow.
 
-class WikiUI:
+    def __init__(self, service):
+        super().__init__() # refers to constructor of father class (QMainWindow) to ensure that the window would be correctly configured.
 
-    def __init__(self, service: WikiService):
-        self.service  = service
+        self.service = service
 
-        self.root = tk.Tk()
-        self.root.title("Desktop Wiki")
-        self.root.geometry("1100x700")
+        self.setWindowTitle("Desktop Wiki")
+        self.resize(1100, 700)
 
         self.build_ui()
         self.refresh_index()
 
     def build_ui(self):
 
-        main_frame = tk.Frame(self.root)
-        main_frame.pack(fill=tk.BOTH, expand=True)
+        # In Qt we need a central "central widget"
+        central = QWidget()
+        self.setCentralWidget(central)
 
-        # LEFT PANEL (pages index)
+        # Princiapl layout (horizontal)
+        main_layout = QHBoxLayout()
+        central.setLayout(main_layout)
 
-        left_frame = tk.Frame(main_frame, width=250)
-        left_frame.pack(side=tk.LEFT, fill=tk.Y)
+        # =========================
+        # LEFT PANEL
+        # =========================
 
-        tk.Label(left_frame, text="Pages").pack()
+        left_layout = QVBoxLayout()
 
-        self.search_entry = tk.Entry(left_frame)
-        self.search_entry.pack(fill=tk.X, padx=5)
-        self.search_entry.bind("<KeyRelease>", self.search_pages)
+        left_layout.addWidget(QLabel("Pages"))
 
-        self.page_list = tk.Listbox(left_frame)
-        self.page_list.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        self.page_list.bind("<<ListboxSelect>>", self.load_selected_page)
+        self.search_entry = QLineEdit()
+        self.search_entry.textChanged.connect(self.search_pages)  # Whenever the text changes in this field, execute this function.
+        # replace  bind("<KeyRelease>")
 
-        # RIGHT PANEL (editor + preview)
+        left_layout.addWidget(self.search_entry)
 
-        right_frame = tk.Frame(main_frame)
-        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.page_list = QListWidget()
+        self.page_list.itemClicked.connect(self.load_selected_page)
+        # replace Listbox + bind
 
-        self.title_entry = tk.Entry(right_frame, font=("Arial", 14))
-        self.title_entry.pack(fill=tk.X, pady=5)
+        left_layout.addWidget(self.page_list)
 
-        editor_frame = tk.Frame(right_frame)
-        editor_frame.pack(fill=tk.BOTH, expand=True)
+        main_layout.addLayout(left_layout, 1)  
+        #  "1" = relative weight (type flexbox)
 
-        self.editor = scrolledtext.ScrolledText(editor_frame)
-        self.editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.editor.bind("<KeyRelease>", self.update_preview)
+        # =========================
+        # RIGHT PANEL
+        # =========================
 
-        self.preview = scrolledtext.ScrolledText(
-            editor_frame,
-            state=tk.DISABLED,
-            bg="#f4f4f4"
-        )
-        self.preview.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        right_layout = QVBoxLayout()
 
-        button_frame = tk.Frame(right_frame)
-        button_frame.pack(fill=tk.X)
+        self.title_entry = QLineEdit()
+        right_layout.addWidget(self.title_entry)
 
-        tk.Button(button_frame, text="Save", command=self.save_page)\
-            .pack(side=tk.LEFT, fill=tk.X, expand=True)
+        editor_layout = QHBoxLayout()
 
-        tk.Button(button_frame, text="New", command=self.new_page)\
-            .pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.editor = QTextEdit()
+        self.editor.textChanged.connect(self.update_preview)
+        # replace KeyRelease
 
-        tk.Button(button_frame, text="Export HTML", command=self.export_html)\
-            .pack(side=tk.LEFT, fill=tk.X, expand=True)
+        editor_layout.addWidget(self.editor)
 
-    def run(self):
-        self.root.mainloop()
+        self.preview = QTextEdit()
+        self.preview.setReadOnly(True)
+        self.preview.setStyleSheet("background-color: #f4f4f4;")
 
-    def update_preview(self, event=None):
+        editor_layout.addWidget(self.preview)
 
-        content = self.editor.get("1.0", tk.END)
+        right_layout.addLayout(editor_layout)
 
+        # =========================
+        # BUTTONS
+        # =========================
+
+        button_layout = QHBoxLayout()
+
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save_page)
+
+        new_btn = QPushButton("New")
+        new_btn.clicked.connect(self.new_page)
+
+        export_btn = QPushButton("Export HTML")
+        export_btn.clicked.connect(self.export_html)
+
+        button_layout.addWidget(save_btn)
+        button_layout.addWidget(new_btn)
+        button_layout.addWidget(export_btn)
+
+        right_layout.addLayout(button_layout)
+
+        main_layout.addLayout(right_layout, 3)
+
+    # =========================
+    # LOGIC 
+    # =========================
+
+    def update_preview(self):
+        content = self.editor.toPlainText()
         html = markdown.markdown(content)
 
-        self.preview.config(state=tk.NORMAL)
-        self.preview.delete("1.0", tk.END)
-        self.preview.insert(tk.END, html)
-        self.preview.config(state=tk.DISABLED)
+        self.preview.setPlainText(html)
+        # Qt split plainText vs richText
 
     def refresh_index(self):
-
         try:
             titles = self.service.get_all_titles()
 
-            self.page_list.delete(0, tk.END)
+            self.page_list.clear()
 
             for title in titles:
-                self.page_list.insert(tk.END, title)
+                self.page_list.addItem(title)
 
-        except WikiError as e:
-            messagebox.showerror("Error", str(e))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
 
-    def search_pages(self, event=None):
-
-        query = self.search_entry.get().lower()
+    def search_pages(self):
+        query = self.search_entry.text().lower()
 
         try:
             titles = self.service.get_all_titles()
 
-            self.page_list.delete(0, tk.END)
+            self.page_list.clear()
 
             for title in titles:
                 if query in title.lower():
-                    self.page_list.insert(tk.END, title)
+                    self.page_list.addItem(title)
 
-        except WikiError as e:
-            messagebox.showerror("Error", str(e))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
 
-    def load_selected_page(self, event=None):
-
+    def load_selected_page(self, item):
         try:
-            selection = self.page_list.curselection()
-
-            if not selection:
-                return
-
-            title = self.page_list.get(selection[0])
+            title = item.text()
 
             page = self.service.get_page(title)
 
             if page:
-                self.title_entry.delete(0, tk.END)
-                self.title_entry.insert(0, page[0])
-
-                self.editor.delete("1.0", tk.END)
-                self.editor.insert(tk.END, page[1])
+                self.title_entry.setText(page[0])
+                self.editor.setPlainText(page[1])
 
                 self.update_preview()
 
-        except WikiError as e:
-            messagebox.showerror("Error", str(e))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
 
     def save_page(self):
-
         try:
-            title = self.title_entry.get().strip()
-            content = self.editor.get("1.0", tk.END)
+            title = self.title_entry.text().strip()
+            content = self.editor.toPlainText()
 
             self.service.save_page(title, content)
 
-            messagebox.showinfo("Saved", "Page saved successfully")
+            QMessageBox.information(self, "Saved", "Page saved successfully")
 
             self.refresh_index()
 
-        except ValidationError as e:
-            messagebox.showwarning("Validation error", str(e))
-
-        except WikiError as e:
-            messagebox.showerror("Error", str(e))
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e))
 
     def new_page(self):
-
-        self.title_entry.delete(0, tk.END)
-
-        self.editor.delete("1.0", tk.END)
-
-        self.preview.config(state=tk.NORMAL)
-        self.preview.delete("1.0", tk.END)
-        self.preview.config(state=tk.DISABLED)
+        self.title_entry.clear()
+        self.editor.clear()
+        self.preview.clear()
 
     def export_html(self):
         try:
-            export_path = self.service.export_to_mkdocs(
+            self.service.export_to_mkdocs(
                 output_dir="wiki_export_mkdocs",
                 site_name="My personal wiki",
                 build_after_export=False
             )
-
         except Exception as e:
-            messagebox.showerror("Error in export", str(e))  
+            QMessageBox.critical(self, "Error", str(e))
+
+
+# Run the application
+if __name__ == "__main__":
+    app = QApplication([])
+
+    window = WikiUI(service=None)  # inject real service
+    window.show()
+
+    app.exec()

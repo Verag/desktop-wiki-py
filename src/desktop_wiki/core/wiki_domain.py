@@ -14,12 +14,6 @@ from collections import defaultdict
 
 # Module-level logger setup (can be overridden by the application)
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s | %(levelname)-7s | %(name)s | %(message)s'
-    )
-
 
 class WikiError(Exception):
     """Base exception for all wiki-specific errors."""
