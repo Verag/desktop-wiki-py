@@ -15,8 +15,7 @@ No cloud. No tracking. Just your notes, your way.
 
 - Create and edit wiki-style pages
 - Full Markdown support with live preview
-- Local storage using SQLite (everything stays on your machine)
-- Clean and intuitive Tkinter interface
+- Clean and intuitive PyQt interface
 - Quick page index with search functionality
 - Action logging (see what was changed and when)
 - Powerful export options:
