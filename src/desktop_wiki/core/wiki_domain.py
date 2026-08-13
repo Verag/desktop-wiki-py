@@ -30,6 +30,15 @@ class DatabaseError(WikiError):
     """
     pass
 
+def convert_wiki_links(text):
+    pattern = r"\[\[(.*?)\]\]"
+
+    def replace(match):
+        title = match.group(1)
+        return f'<a href="wiki://{title}">{title}</a>'
+
+    return re.sub(pattern, replace, text)
+
 class WikiDB:
     """
     Persistence layer for a personal desktop Wiki application.

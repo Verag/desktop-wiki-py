@@ -8,6 +8,8 @@ WikiService acts as the business logic layer between the UI and the database.
 5. The result (export path) is returned to the caller
 """
 
+import re
+
 from desktop_wiki.exporters.mkdocs import MkDocsExporter
 
 
@@ -28,6 +30,28 @@ class WikiService:
     def save_page(self, title: str, content: str):
         """Save or update a page with the given title and content."""
         return self.db.save_page(title, content)
+    
+    import re
+
+    def get_backlinks(self, title):
+        try:
+            pages = self.db.get_all_pages()  # need return (title, content)
+
+            backlinks = []
+
+            pattern = re.compile(r"\[\[(.*?)\]\]")
+
+            for page_title, content in pages:
+                links = pattern.findall(content)
+
+                if title in links and page_title != title:
+                    backlinks.append(page_title)
+
+            return backlinks
+
+        except Exception as e:
+            raise e
+            
 
     def export_to_mkdocs(
         self,

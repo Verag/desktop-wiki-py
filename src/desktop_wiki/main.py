@@ -4,7 +4,7 @@ from desktop_wiki.services.wiki_service import WikiService
 
 import sys
 import logging
-from PyQt6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 
 logger = logging.getLogger(__name__)
@@ -22,21 +22,18 @@ def main():
     setup_logging()
     logger.info("Starting Wiki application...")
 
-    app = None  # 🔥 garante que existe referência clara
+    app = None 
 
     try:
-        # 1️⃣ PRIMEIRO: QApplication (OBRIGATÓRIO ANTES DE QUALQUER UI)
         logger.info("Starting Qt application...")
         app = QApplication(sys.argv)
 
-        # 2️⃣ depois lógica da aplicação
         logger.info("Initializing database...")
         db = WikiDB()
 
         logger.info("Initializing service layer...")
         service = WikiService(db)
 
-        # 3️⃣ UI
         window = WikiUI(service=service)
         window.show()
 
@@ -47,7 +44,6 @@ def main():
     except Exception as e:
         logger.exception("Fatal error starting application")
 
-        # garante app existente
         if QApplication.instance() is None:
             app = QApplication(sys.argv)
 

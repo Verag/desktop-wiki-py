@@ -1,18 +1,19 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget,
+    QApplication, QMainWindow, QWidget,QTextBrowser, QTextEdit,
     QVBoxLayout, QHBoxLayout,
-    QListWidget, QLineEdit, QTextEdit,
+    QListWidget, QLineEdit, QTextBrowser,
     QPushButton, QLabel, QMessageBox
 )
 
 from PySide6.QtCore import Qt
 import markdown
+import re
 
 
-class WikiUI(QMainWindow): # The WikiUI class inherits all attributes and methods from QMainWindow.
+class WikiUI(QMainWindow):
 
     def __init__(self, service):
-        super().__init__() # refers to constructor of father class (QMainWindow) to ensure that the window would be correctly configured.
+        super().__init__()
 
         self.service = service
 
@@ -22,15 +23,20 @@ class WikiUI(QMainWindow): # The WikiUI class inherits all attributes and method
         self.build_ui()
         self.refresh_index()
 
+    # =========================
+    # UI SETUP
+    # =========================
+
     def build_ui(self):
 
-        # In Qt we need a central "central widget"
         central = QWidget()
         self.setCentralWidget(central)
 
-        # Princiapl layout (horizontal)
         main_layout = QHBoxLayout()
         central.setLayout(main_layout)
+        
+        
+
 
         # =========================
         # LEFT PANEL
@@ -41,19 +47,14 @@ class WikiUI(QMainWindow): # The WikiUI class inherits all attributes and method
         left_layout.addWidget(QLabel("Pages"))
 
         self.search_entry = QLineEdit()
-        self.search_entry.textChanged.connect(self.search_pages)  # Whenever the text changes in this field, execute this function.
-        # replace  bind("<KeyRelease>")
-
+        self.search_entry.textChanged.connect(self.search_pages)
         left_layout.addWidget(self.search_entry)
 
         self.page_list = QListWidget()
         self.page_list.itemClicked.connect(self.load_selected_page)
-        # replace Listbox + bind
-
         left_layout.addWidget(self.page_list)
 
-        main_layout.addLayout(left_layout, 1)  
-        #  "1" = relative weight (type flexbox)
+        main_layout.addLayout(left_layout, 1)
 
         # =========================
         # RIGHT PANEL
@@ -68,16 +69,24 @@ class WikiUI(QMainWindow): # The WikiUI class inherits all attributes and method
 
         self.editor = QTextEdit()
         self.editor.textChanged.connect(self.update_preview)
-        # replace KeyRelease
-
         editor_layout.addWidget(self.editor)
 
-        self.preview = QTextEdit()
+        self.preview = QTextBrowser()
         self.preview.setReadOnly(True)
         self.preview.setStyleSheet("background-color: #f4f4f4;")
+        
+        self.preview.anchorClicked.connect(self.handle_link_click)
+        
+        self.backlinks_label = QLabel("Backlinks")
+        
+        ### blacklinks
+        right_layout.addWidget(self.backlinks_label)
 
+        self.backlinks_list = QListWidget()
+        self.backlinks_list.itemClicked.connect(self.load_selected_page)
+
+        right_layout.addWidget(self.backlinks_list)
         editor_layout.addWidget(self.preview)
-
         right_layout.addLayout(editor_layout)
 
         # =========================
@@ -104,15 +113,56 @@ class WikiUI(QMainWindow): # The WikiUI class inherits all attributes and method
         main_layout.addLayout(right_layout, 3)
 
     # =========================
-    # LOGIC 
+    # WIKI LINKS SUPPORT
+    # =========================
+
+    def convert_wiki_links(self, text):
+        pattern = r"\[\[(.*?)\]\]"
+
+        def replace(match):
+            title = match.group(1)
+            return f'<a href="wiki://{title}">{title}</a>'
+
+        return re.sub(pattern, replace, text)
+
+    # =========================
+    # PREVIEW
     # =========================
 
     def update_preview(self):
         content = self.editor.toPlainText()
-        html = markdown.markdown(content)
 
-        self.preview.setPlainText(html)
-        # Qt split plainText vs richText
+        html = markdown.markdown(content)
+        html = self.convert_wiki_links(html)
+
+        self.preview.setHtml(html)
+        self.preview.setOpenExternalLinks(False)
+
+
+    # =========================
+    # LINK CLICK HANDLER
+    # =========================
+
+    def handle_link_click(self, url):
+        title = url.toString().replace("wiki://", "")
+
+        try:
+            page = self.service.get_page(title)
+
+            if page:
+                self.title_entry.setText(page[0])
+                self.editor.setPlainText(page[1])
+                self.update_preview()
+                self.update_backlinks(page[0]) 
+            else:
+                QMessageBox.warning(self, "Not found", f"Page '{title}' does not exist.")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+
+    # =========================
+    # DATA LOGIC
+    # =========================
 
     def refresh_index(self):
         try:
@@ -150,8 +200,8 @@ class WikiUI(QMainWindow): # The WikiUI class inherits all attributes and method
             if page:
                 self.title_entry.setText(page[0])
                 self.editor.setPlainText(page[1])
-
                 self.update_preview()
+                self.update_backlinks(page[0])  
 
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
@@ -184,13 +234,28 @@ class WikiUI(QMainWindow): # The WikiUI class inherits all attributes and method
             )
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
+            
 
+    def update_backlinks(self, title):
+        try:
+            backlinks = self.service.get_backlinks(title)
 
-# Run the application
+            self.backlinks_list.clear()
+
+            for link in backlinks:
+                self.backlinks_list.addItem(link)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+        
+""" # =========================
+# RUN APP
+# =========================
+
 if __name__ == "__main__":
     app = QApplication([])
 
-    window = WikiUI(service=None)  # inject real service
+    window = WikiUI(service=None)  # inject real service here
     window.show()
 
-    app.exec()
+    app.exec() """
